@@ -20,9 +20,10 @@ class SENet(nn.Module):
         global_pool = self.global_pool(x)
         conv1 = self.conv1(global_pool)
         conv2 = self.conv2(conv1)
-        conv3 = self.sigmoid(conv2).expand(1, self.dim, x.size(2), x.size(3))
+        #conv3 = self.sigmoid(conv2).expand(1, self.dim, 14, 14)
+        conv3 = self.sigmoid(conv2).expand_as(x).clone()
 
-        output = x * conv3
+        output = torch.mul(x,conv3)
 
         return output
 
@@ -55,7 +56,7 @@ class BASNet(nn.Module):
     def __init__(self,n_channels,n_classes):
         super(BASNet,self).__init__()
 
-        resnet = models.resnet50(pretrained=True)
+        resnet = models.resnet34(pretrained=True)
 
         ## -------------Encoder--------------
 
@@ -119,7 +120,7 @@ class BASNet(nn.Module):
             nn.Upsample(scale_factor=2,mode='bilinear')
         )
         self.hlow = nn.Sequential(
-            nn.Conv2d(512,128,3),
+            nn.Conv2d(384,128,3),
             nn.BatchNorm2d(128),
             nn.ReLU(inplace=True)
         )
@@ -136,7 +137,7 @@ class BASNet(nn.Module):
             nn.ReLU(inplace=True),
             nn.Upsample(scale_factor=2, mode='bilinear')
         )
-        self.SA =SANet(512)
+        self.SA =SANet(128)
         self.SA1 = nn.Sequential(
             nn.Upsample(scale_factor=2,mode='bilinear')
         )
@@ -145,7 +146,7 @@ class BASNet(nn.Module):
         self.out1= nn.Sequential(
             nn.Upsample(scale_factor=4, mode='bilinear'),
             nn.Conv2d(256,1,1),
-            nn.BatchNorm2d,
+            nn.BatchNorm2d(1),
             nn.ReLU(inplace=True)
         )
 
