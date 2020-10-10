@@ -5,9 +5,7 @@ import torch.nn.functional as F
 
 from .resnet_model import *
 
-
 class SENet(nn.Module):
-
     def __init__(self, in_dim):
         super(SENet, self).__init__()
         self.dim = in_dim
